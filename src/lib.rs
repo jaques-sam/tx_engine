@@ -1,2 +1,2 @@
 pub mod transactions;
-pub mod client;
+pub mod bank;

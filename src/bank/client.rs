@@ -1,4 +1,4 @@
-type Amount = f64;
+pub type Amount = f64;
 
 #[derive(Default)]
 pub struct Account {
