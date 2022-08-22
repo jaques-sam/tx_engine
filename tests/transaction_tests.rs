@@ -17,7 +17,8 @@ mod tests {
             Transaction::new(Kind::Withdrawal, 2, 5, Some(3.0)),
         ];
 
-        let actual_transactions = tx_engine::transactions::read_transactions(&csv_file);
+        let actual_transactions = tx_engine::transactions::parse_transactions(&csv_file)
+            .expect("Parsing transactions failed");
         assert_eq!(actual_transactions, expected_transactions);
     }
 
@@ -35,7 +36,49 @@ mod tests {
             Transaction::new(Kind::Chargeback, 1, 2, None),
         ];
 
-        let actual_transactions = tx_engine::transactions::read_transactions(&csv_file);
+        let actual_transactions = tx_engine::transactions::parse_transactions(&csv_file)
+            .expect("Parsing transactions failed");
         assert_eq!(actual_transactions, expected_transactions);
+    }
+
+    #[test]
+    fn test_invalid_transaction_csv_format() {
+        let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        csv_file.push("input_data");
+        csv_file.push("invalid_transaction_format.csv");
+
+        assert!(tx_engine::transactions::parse_transactions(&csv_file).is_err());
+    }
+
+    #[test]
+    fn test_missing_amount_in_deposit_transaction() {
+        let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        csv_file.push("input_data");
+        csv_file.push("missing_amount_in_deposit_transaction.csv");
+
+        assert_eq!(
+            *tx_engine::transactions::parse_transactions(&csv_file)
+                .unwrap_err()
+                .current_context(),
+            tx_engine::transactions::ParseTxError::InvalidInput(
+                "Deposit transactions must contain an amount".to_owned()
+            )
+        );
+    }
+
+    #[test]
+    fn test_abundant_amount_in_dispute_transaction() {
+        let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        csv_file.push("input_data");
+        csv_file.push("abundant_amount_in_dispute_transaction.csv");
+
+        assert_eq!(
+            *tx_engine::transactions::parse_transactions(&csv_file)
+                .unwrap_err()
+                .current_context(),
+            tx_engine::transactions::ParseTxError::InvalidInput(
+                "Dispute transactions cannot contain an amount".to_owned()
+            )
+        );
     }
 }
