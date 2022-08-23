@@ -44,6 +44,11 @@ fn group_transactions(transactions: Vec<Transaction>) -> HashMap<ClientId, Vec<T
 
     for tx in transactions {
         let client_group = groups.entry(tx.client).or_insert(vec![]);
+        if !crate::transactions::is_disputable(&tx) {
+            if let None = client_group.iter().find(|x| x.tx == tx.tx) {
+                continue;
+            }
+        }
         client_group.push(tx);
     }
     groups
@@ -63,11 +68,11 @@ fn get_amount_for_tx(tx: &Transaction, txs: &Vec<Transaction>) -> Option<f64> {
     None
 }
 
-fn handle_tx(tx: &Transaction, account: &mut client::Account, txs: &Vec<Transaction>) {
+fn handle_tx(tx: &Transaction, account: &mut client::Account, txs: &Vec<Transaction>) -> Result<(), client::AccountError> {
     match tx.kind {
         Kind::Withdrawal => {
             let amount = tx.amount.expect("Should be checked when parsing");
-            account.withdrawal(amount);
+            return account.withdrawal(amount);
         }
         Kind::Deposit => account.deposit(tx.amount.expect("Should be checked when parsing")),
         _ => {
@@ -81,6 +86,7 @@ fn handle_tx(tx: &Transaction, account: &mut client::Account, txs: &Vec<Transact
             }
         }
     }
+    Ok(())
 }
 
 impl Bank {
@@ -99,7 +105,16 @@ impl Bank {
                 continue;
             }
 
-            txs.iter().for_each(|tx| handle_tx(tx, &mut account, &txs));
+            //--> replace this block when `Vec::drain_filter` becomes stable
+            let mut i = 0;
+            while i < txs.len() {
+                if handle_tx(&txs[i], &mut account, &txs).is_err() {
+                    txs.remove(i);
+                } else {
+                    i += 1;
+                }
+            }
+            //<--
         }
     }
 
@@ -142,7 +157,6 @@ mod tests {
         assert!(bank.clients.is_empty());
     }
 
-    #[ignore]
     #[test]
     fn test_client_report_for_basic_transactions() {
         let mut bank = Bank::new();

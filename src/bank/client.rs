@@ -1,5 +1,10 @@
 pub type Amount = f64;
 
+#[derive(Debug, PartialEq)]
+pub enum AccountError {
+    InsufficientFunds(String),
+}
+
 #[derive(Default)]
 pub struct Account {
     available_funds: Amount,
@@ -51,8 +56,15 @@ impl Account {
     /// account.withdrawal(1.0);
     /// assert_eq!(account.get_available_funds(), 1.0);
     /// ```
-    pub fn withdrawal(&mut self, amount: Amount) {
+    pub fn withdrawal(&mut self, amount: Amount) -> Result<(), AccountError> {
+        if (self.available_funds - amount) < 0.0 {
+            return Err(AccountError::InsufficientFunds(
+                "Insufficient funds to withdraw".to_owned(),
+            ));
+        }
+
         self.available_funds -= amount;
+        Ok(())
     }
 
     /// An amount under dispute which becomes held
@@ -104,8 +116,12 @@ mod tests {
         let mut account = Account::new();
         account.deposit(6.0);
 
-        account.withdrawal(3.0);
-        account.withdrawal(2.0);
+        account
+            .withdrawal(3.0)
+            .expect("Should work if there's enough cash on account");
+        account
+            .withdrawal(2.0)
+            .expect("Should work if there's enough cash on account");
         assert_eq!(account.get_available_funds(), 1.0);
         assert_eq!(account.get_total_funds(), 1.0);
         assert_eq!(account.get_held_funds(), 0.0);
@@ -158,5 +174,14 @@ mod tests {
         assert_eq!(account.get_available_funds(), 2.0);
         assert_eq!(account.get_held_funds(), 0.0);
         assert_eq!(account.get_total_funds(), 2.0);
+    }
+
+    #[test]
+    fn test_account_withdrawal_fails_on_insufficient_funds() {
+        let mut account = Account::new();
+        assert!(matches!(
+            account.withdrawal(1.0).unwrap_err(),
+            AccountError::InsufficientFunds(_)
+        ));
     }
 }
