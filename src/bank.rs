@@ -39,13 +39,68 @@ impl AccountReport {
     }
 }
 
+fn group_transactions(transactions: Vec<Transaction>) -> HashMap<ClientId, Vec<Transaction>> {
+    let mut groups: HashMap<ClientId, Vec<Transaction>> = HashMap::new();
+
+    for tx in transactions {
+        let client_group = groups.entry(tx.client).or_insert(vec![]);
+        client_group.push(tx);
+    }
+    groups
+}
+
+fn get_amount_for_tx(tx: &Transaction, txs: &Vec<Transaction>) -> Option<f64> {
+    if let Some(disputable_tx) = txs.into_iter().find(|tx_from_client| {
+        (tx.tx == tx_from_client.tx) && crate::transactions::is_disputable(&tx_from_client)
+    }) {
+        if tx.kind == Kind::Withdrawal {
+            if let Some(amount) = disputable_tx.amount {
+                return Some(amount * -1.0);
+            }
+        }
+        return disputable_tx.amount;
+    }
+    None
+}
+
+fn handle_tx(tx: &Transaction, account: &mut client::Account, txs: &Vec<Transaction>) {
+    match tx.kind {
+        Kind::Withdrawal => {
+            let amount = tx.amount.expect("Should be checked when parsing");
+            account.withdrawal(amount);
+        }
+        Kind::Deposit => account.deposit(tx.amount.expect("Should be checked when parsing")),
+        _ => {
+            if let Some(amount) = get_amount_for_tx(&tx, &txs) {
+                match tx.kind {
+                    Kind::Dispute => account.dispute(amount),
+                    Kind::Resolve => account.resolve(amount),
+                    Kind::Chargeback => account.chargeback(amount),
+                    _ => {}
+                };
+            }
+        }
+    }
+}
+
 impl Bank {
     pub fn new() -> Bank {
         Bank::default()
     }
 
     pub fn handle_transactions(&mut self, transactions: Vec<Transaction>) {
-        // todo
+        for (client_id, txs) in &mut group_transactions(transactions) {
+            let mut account = self
+                .clients
+                .entry(*client_id)
+                .or_insert(client::Account::new());
+
+            if account.is_locked() {
+                continue;
+            }
+
+            txs.iter().for_each(|tx| handle_tx(tx, &mut account, &txs));
+        }
     }
 
     pub fn get_accounts_report(&self) -> Vec<AccountReport> {
