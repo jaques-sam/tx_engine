@@ -12,6 +12,22 @@ Rust, install here: https://www.rust-lang.org/tools/install.
 
 ## Usage
 
+### Run unit tests
+
+Run unit tests using:
+
+```sh
+cargo test
+```
+
+Run test bench via:
+```sh
+cargo bench
+```
+
+Most tests use input files from ./input_data to compare.
+
+
 ### Run command line tool
 
 ```sh
