@@ -3,6 +3,7 @@ mod tests {
     use std::path::PathBuf;
     use tx_engine::{bank::AccountReport, bank::Bank, transactions};
 
+    #[ignore]
     #[test]
     fn test_a_client_got_a_dispute_on_a_failed_withdrawal() {
         let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -19,6 +20,7 @@ mod tests {
         assert_eq!(bank.get_accounts_report(), expected);
     }
 
+    #[ignore]
     #[test]
     fn test_a_client_got_a_resolve_on_a_failed_withdrawal() {
         let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -35,6 +37,7 @@ mod tests {
         assert_eq!(bank.get_accounts_report(), expected);
     }
 
+    #[ignore]
     #[test]
     fn test_a_client_got_a_chargeback_on_a_failed_withdrawal() {
         let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
@@ -99,6 +102,7 @@ mod tests {
         assert_eq!(bank.get_accounts_report(), expected);
     }
 
+    #[ignore]
     #[test]
     fn test_three_clients_have_their_correct_funds_after_handling_transactions() {
         let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));

@@ -32,7 +32,8 @@ impl Account {
     ///
     /// # Examples
     /// ```
-    /// let mut account = tx_engine::client::Account::new();
+    /// use tx_engine::client::Account;
+    /// let mut account = Account::new();
     /// account.deposit(2.0);
     /// assert_eq!(account.get_available_funds(), 2.0);
     /// ```
@@ -44,7 +45,8 @@ impl Account {
     ///
     /// # Examples
     /// ```
-    /// let mut account = tx_engine::client::Account::new();
+    /// use tx_engine::client::Account;
+    /// let mut account = Account::new();
     /// account.deposit(2.0);
     /// account.withdrawal(1.0);
     /// assert_eq!(account.get_available_funds(), 1.0);
