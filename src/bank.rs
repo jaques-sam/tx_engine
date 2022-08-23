@@ -61,6 +61,7 @@ fn group_transactions(transactions: Vec<Transaction>) -> HashMap<ClientId, Vec<T
         let client_group = groups.entry(tx.client).or_insert(vec![]);
         if !crate::transactions::is_disputable(&tx) {
             if let None = client_group.iter().find(|x| x.tx == tx.tx) {
+                log::error!("[Tx {}] Invalid transaction from partner", tx.tx);
                 continue;
             }
         }
@@ -121,15 +122,19 @@ impl Bank {
                 .or_insert(client::Account::new());
 
             if account.is_locked() {
+                log::info!("Client {client_id} is locked and cannot accept any transactions");
                 continue;
             }
 
             //--> replace this block when `Vec::drain_filter` becomes stable
             let mut i = 0;
             while i < txs.len() {
-                if handle_tx(&txs[i], &mut account, &txs).is_err() {
+                let tx = &txs[i];
+                if let Err(err) = handle_tx(tx, &mut account, &txs) {
+                    log::warn!("{tx:?} failed. {err}");
                     txs.remove(i);
                 } else {
+                    log::info!("{tx:?} successful");
                     i += 1;
                 }
             }

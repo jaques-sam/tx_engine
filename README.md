@@ -17,12 +17,12 @@ Rust, install here: https://www.rust-lang.org/tools/install.
 Run unit tests using:
 
 ```sh
-cargo test
+$ cargo test
 ```
 
 Run test bench via:
 ```sh
-cargo bench
+$ cargo bench
 ```
 
 Most tests use input files from ./input_data to compare.
@@ -35,6 +35,15 @@ $ cargo run -- transactions.csv > accounts.csv
 ```
 
 The input file is the first and only argument to the binary. Output should be written to std out
+
+
+### Error handling
+
+Three types of errors:
+- Immediate feedback on wrong command: panic when input is not given
+- Logging: used to track down all transaction executions
+  Put `RUST_LOG=<level>` in front of the executable. See log levels here: https://docs.rs/env_logger/
+- User & developer feedback: result output of the application
 
 
 ### Input
