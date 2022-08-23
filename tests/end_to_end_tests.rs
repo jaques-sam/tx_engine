@@ -118,4 +118,22 @@ mod tests {
 
         assert_eq!(bank.get_accounts_report(), expected);
     }
+
+    #[test]
+    fn test_numbers_are_reported_with_4_digits_after_the_decimal() {
+        let mut csv_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        csv_file.push("input_data");
+        csv_file.push("long_dec_transactions.csv");
+
+        let mut bank = Bank::new();
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
+
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
+
+        let expected = vec![AccountReport::new(1, 6.0001, 0.0, 6.0001, false)];
+
+        assert_eq!(bank.get_accounts_report(), expected);
+    }
 }

@@ -1,5 +1,9 @@
 pub type Amount = f64;
 
+fn round_at_4_dec(x: Amount) -> Amount {
+    (x * 10000.0).round() / 10000.0
+}
+
 #[derive(Debug, PartialEq)]
 pub enum AccountError {
     InsufficientFunds(String),
@@ -18,15 +22,15 @@ impl Account {
     }
 
     pub fn get_available_funds(&self) -> Amount {
-        self.available_funds
+        round_at_4_dec(self.available_funds)
     }
 
     pub fn get_held_funds(&self) -> Amount {
-        self.held_funds
+        round_at_4_dec(self.held_funds)
     }
 
     pub fn get_total_funds(&self) -> Amount {
-        self.available_funds + self.held_funds
+        round_at_4_dec(self.available_funds + self.held_funds)
     }
 
     pub fn is_locked(&self) -> bool {
@@ -183,5 +187,23 @@ mod tests {
             account.withdrawal(1.0).unwrap_err(),
             AccountError::InsufficientFunds(_)
         ));
+    }
+
+    #[test]
+    fn test_precision_of_funds_are_4_digits_past_the_decimal_with_closest_integer_rounding() {
+        let mut account = Account::new();
+        account.deposit(4.0001);
+        account.deposit(4.00005);
+
+        assert_eq!(account.get_available_funds(), 8.0002);
+    }
+
+    #[test]
+    fn test_two_values_half_the_precision_results_in_the_smallest_precision_number() {
+        let mut account = Account::new();
+        account.deposit(0.00005);
+        account.deposit(0.00005);
+
+        assert_eq!(account.get_available_funds(), 0.0001);
     }
 }
