@@ -1,3 +1,5 @@
+use std::{error::Error, fmt};
+
 pub type Amount = f64;
 
 fn round_at_4_dec(x: Amount) -> Amount {
@@ -7,6 +9,14 @@ fn round_at_4_dec(x: Amount) -> Amount {
 #[derive(Debug, PartialEq)]
 pub enum AccountError {
     InsufficientFunds(String),
+}
+
+impl Error for AccountError {}
+
+impl fmt::Display for AccountError {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        fmt.write_str("Wrong account operation")
+    }
 }
 
 #[derive(Default)]
@@ -116,19 +126,16 @@ mod tests {
     }
 
     #[test]
-    fn test_account_withdrawal_decreases_funds() {
+    fn test_account_withdrawal_decreases_funds() -> Result<(), AccountError> {
         let mut account = Account::new();
         account.deposit(6.0);
 
-        account
-            .withdrawal(3.0)
-            .expect("Should work if there's enough cash on account");
-        account
-            .withdrawal(2.0)
-            .expect("Should work if there's enough cash on account");
+        account.withdrawal(3.0)?;
+        account.withdrawal(2.0)?;
         assert_eq!(account.get_available_funds(), 1.0);
         assert_eq!(account.get_total_funds(), 1.0);
         assert_eq!(account.get_held_funds(), 0.0);
+        Ok(())
     }
 
     #[test]

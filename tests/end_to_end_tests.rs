@@ -10,9 +10,11 @@ mod tests {
         csv_file.push("withdrawal_disputed.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 0.0, 0.0, 0.0, false)];
 
@@ -26,9 +28,11 @@ mod tests {
         csv_file.push("withdrawal_resolved.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 0.0, 0.0, 0.0, false)];
 
@@ -42,9 +46,11 @@ mod tests {
         csv_file.push("withdrawal_chargeback.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 0.0, 0.0, 0.0, false)];
 
@@ -58,9 +64,11 @@ mod tests {
         csv_file.push("deposit_disputed.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 0.0, 4.0, 4.0, false)];
 
@@ -74,9 +82,11 @@ mod tests {
         csv_file.push("deposit_resolved.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 4.0, 0.0, 4.0, false)];
 
@@ -90,9 +100,11 @@ mod tests {
         csv_file.push("deposit_chargeback.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![AccountReport::new(1, 0.0, 0.0, 0.0, true)];
 
@@ -106,9 +118,11 @@ mod tests {
         csv_file.push("multiple_client_transactions.csv");
 
         let mut bank = Bank::new();
-        let actual_transactions = transactions::parse_transactions(&csv_file);
+        let actual_transactions =
+            transactions::parse_transactions(&csv_file).expect("Parsing transactions failed!");
 
-        bank.handle_transactions(actual_transactions.unwrap());
+        bank.handle_transactions(actual_transactions)
+            .expect("Handling transactions failed!");
 
         let expected = vec![
             AccountReport::new(1, 1.0, 0.0, 1.0, true),

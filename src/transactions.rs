@@ -84,14 +84,18 @@ pub fn parse_transactions(
         .from_path(transactions_abs_path)
         .report()
         .attach_printable(format!("{transactions_abs_path:?} is not a valid file"))
-        .change_context(ParseTxError::InvalidInput("CSV parser cannot be built".to_owned()))?;
+        .change_context(ParseTxError::InvalidInput(
+            "CSV parser cannot be built".to_owned(),
+        ))?;
 
     for (idx, result) in reader.deserialize().into_iter().enumerate() {
         let line_nbr = idx + 1; // 1 header + starting from 1
         let record: Transaction = result
             .report()
             .attach_printable(format!("has an invalid transaction on line {line_nbr}"))
-            .change_context(ParseTxError::InvalidInput("record cannot be parsed".to_owned()))?;
+            .change_context(ParseTxError::InvalidInput(
+                "record cannot be parsed".to_owned(),
+            ))?;
 
         validate_optional_field(&record)?;
         transactions.push(record);
